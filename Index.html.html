@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AuditPro — Internal Audit Intelligence Platform</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap');
+
+:root {
+  --ink: #0d0f14;
+  --paper: #f5f2eb;
+  --cream: #faf8f3;
+  --gold: #c49a3c;
+  --gold-light: #e8c96a;
+  --gold-pale: #f7f0de;
+  --red: #c0392b;
+  --red-pale: #fdf0ef;
+  --green: #1a6b45;
+  --green-pale: #edf7f2;
+  --blue: #1a3a6b;
+  --blue-pale: #eef2f9;
+  --amber: #d97706;
+  --amber-pale: #fef3c7;
+  --border: #d8d2c4;
+  --muted: #7a7164;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 4px 16px rgba(0,0,0,0.06);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* HEADER */
+header {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 0 2rem;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 2px solid var(--gold);
+}
+.header-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 60px;
+}
+.logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 1.5rem;
+  letter-spacing: -0.02em;
+  color: var(--paper);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.logo span { color: var(--gold); }
+.header-meta {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.75rem;
+  color: #888;
+  font-family: 'DM Mono', monospace;
+}
+.progress-chip {
+  background: var(--gold);
+  color: var(--ink);
+  padding: 0.2rem 0.75rem;
+  border-radius: 99px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  font-family: 'DM Mono', monospace;
+}
+
+/* LAYOUT */
+.app-body {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 0;
+  min-height: calc(100vh - 62px);
+}
+
+/* SIDEBAR */
+.sidebar {
+  background: var(--cream);
+  border-right: 1px solid var(--border);
+  padding: 1.5rem 0;
+  position: sticky;
+  top: 62px;
+  height: calc(100vh - 62px);
+  overflow-y: auto;
+}
+.sidebar-section-label {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  padding: 0.75rem 1.5rem 0.4rem;
+}
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem 1.5rem;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+  color: var(--ink);
+  text-decoration: none;
+}
+.nav-item:hover { background: #ece8df; }
+.nav-item.active {
+  background: var(--gold-pale);
+  border-left-color: var(--gold);
+  color: var(--ink);
+  font-weight: 600;
+}
+.nav-icon { font-size: 1rem; width: 20px; text-align: center; }
+.nav-label { font-size: 0.85rem; flex: 1; }
+.nav-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  background: var(--border);
+  color: var(--muted);
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+.nav-item.active .nav-count { background: var(--gold); color: var(--ink); }
+
+.industry-selector {
+  margin: 1rem 1.5rem;
+  padding: 0.6rem 0.75rem;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.85rem;
+  background: white;
+  color: var(--ink);
+  width: calc(100% - 3rem);
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%237a7164' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2rem;
+}
+
+/* MAIN CONTENT */
+.main {
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+/* PROCESS HEADER */
+.process-header {
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+.process-header::before {
+  content: '';
+  position: absolute;
+  top: -30px; right: -30px;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: var(--gold);
+  opacity: 0.08;
+}
+.process-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: rgba(196,154,60,0.2);
+  border: 1px solid rgba(196,154,60,0.4);
+  color: var(--gold-light);
+  padding: 0.25rem 0.75rem;
+  border-radius: 99px;
+  font-size: 0.7rem;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.08em;
+  margin-bottom: 0.75rem;
+}
+.process-title {
+  font-family: 'DM Serif Display', serif;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.02em;
+}
+.process-desc { color: #aaa; font-size: 0.9rem; max-width: 700px; line-height: 1.7; }
+.process-stats {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+.stat { text-align: center; }
+.stat-val { font-family: 'DM Serif Display', serif; font-size: 1.75rem; color: var(--gold-light); }
+.stat-lbl { font-size: 0.7rem; color: #888; font-family: 'DM Mono', monospace; letter-spacing: 0.06em; margin-top: 0.1rem; }
+
+/* SECTION TABS */
+.section-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.tab-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1.5px solid var(--border);
+  background: white;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: var(--muted);
+}
+.tab-btn:hover { border-color: var(--gold); color: var(--ink); }
+.tab-btn.active {
+  background: var(--gold);
+  border-color: var(--gold);
+  color: var(--ink);
+  font-weight: 600;
+}
+
+/* SECTION CARD */
+.section-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+  display: none;
+}
+.section-card.visible { display: block; }
+
+.section-header {
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  background: #fafaf8;
+  border-bottom: 1px solid var(--border);
+  user-select: none;
+}
+.section-header:hover { background: #f5f2eb; }
+.section-icon { font-size: 1.2rem; }
+.section-name { font-weight: 600; font-size: 0.9rem; flex: 1; }
+.section-meta { display: flex; align-items: center; gap: 0.75rem; }
+.risk-badge {
+  font-size: 0.65rem;
+  font-family: 'DM Mono', monospace;
+  letter-spacing: 0.06em;
+  padding: 0.2rem 0.6rem;
+  border-radius: 4px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.risk-high { background: var(--red-pale); color: var(--red); }
+.risk-medium { background: var(--amber-pale); color: var(--amber); }
+.risk-low { background: var(--green-pale); color: var(--green); }
+.section-progress-text { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--muted); }
+.chevron { color: var(--muted); transition: transform 0.2s; font-size: 0.8rem; }
+.section-card.open .chevron { transform: rotate(90deg); }
+
+.section-body { display: none; padding: 0; }
+.section-card.open .section-body { display: block; }
+
+/* CHECKLIST ITEMS */
+.checklist-item {
+  display: grid;
+  grid-template-columns: 24px 1fr auto;
+  gap: 0.75rem;
+  align-items: start;
+  padding: 0.9rem 1.25rem;
+  border-bottom: 1px solid #f0ede8;
+  transition: background 0.1s;
+}
+.checklist-item:last-child { border-bottom: none; }
+.checklist-item:hover { background: #fafaf8; }
+.checklist-item.checked { background: var(--green-pale); }
+.checklist-item.na { background: #f8f8f8; opacity: 0.7; }
+
+.checkbox-wrap {
+  padding-top: 2px;
+}
+.checkbox-wrap input[type="checkbox"] {
+  width: 16px; height: 16px;
+  accent-color: var(--green);
+  cursor: pointer;
+}
+.item-content {}
+.item-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--ink);
+  margin-bottom: 0.3rem;
+  line-height: 1.5;
+}
+.checklist-item.checked .item-text { text-decoration: line-through; color: var(--muted); }
+.item-modus {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-style: italic;
+  margin-bottom: 0.4rem;
+  line-height: 1.5;
+}
+.item-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.3rem; }
+.tag {
+  font-size: 0.65rem;
+  font-family: 'DM Mono', monospace;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+.tag-doc { background: var(--blue-pale); color: var(--blue); }
+.tag-formula { background: #f0f0f0; color: #444; }
+.tag-risk { background: var(--red-pale); color: var(--red); }
+.tag-control { background: var(--green-pale); color: var(--green); }
+
+.item-status {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.4rem;
+  min-width: 80px;
+}
+.status-select {
+  font-size: 0.7rem;
+  font-family: 'DM Mono', monospace;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+  background: white;
+  cursor: pointer;
+  appearance: none;
+  text-align: center;
+  width: 80px;
+}
+
+/* EXCEL PANEL */
+.excel-panel {
+  background: white;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  box-shadow: var(--shadow);
+}
+.excel-panel-header {
+  background: #1d6f42;
+  color: white;
+  padding: 0.9rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+.excel-panel-header h3 {
+  font-size: 0.9rem;
+  font-weight: 600;
+  flex: 1;
+}
+.excel-panel-body { display: none; padding: 1.25rem; }
+.excel-panel.open .excel-panel-body { display: block; }
+
+.excel-step {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid #f0ede8;
+}
+.excel-step:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+.step-num {
+  width: 28px;
+  height: 28px;
+  background: #1d6f42;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.step-content {}
+.step-title { font-weight: 600; font-size: 0.85rem; margin-bottom: 0.25rem; }
+.step-desc { font-size: 0.8rem; color: var(--muted); line-height: 1.6; margin-bottom: 0.5rem; }
+.formula-box {
+  background: #f0f7f3;
+  border: 1px solid #b8dcc8;
+  border-radius: 6px;
+  padding: 0.6rem 0.9rem;
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: #1d6f42;
+  line-height: 1.7;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+.formula-label { font-size: 0.65rem; font-family: 'DM Mono', monospace; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.3rem; }
+
+/* OBSERVATION BOX */
+.obs-box {
+  background: var(--amber-pale);
+  border: 1px solid #f5d87a;
+  border-radius: 8px;
+  padding: 0.9rem 1rem;
+  margin: 0.5rem 0;
+  font-size: 0.8rem;
+  color: #92400e;
+}
+.obs-box strong { display: block; margin-bottom: 0.2rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* PROGRESS BAR */
+.progress-bar-wrap {
+  height: 4px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+  width: 100px;
+}
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), var(--gold-light));
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* OVERALL PROGRESS */
+.overall-progress {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  box-shadow: var(--shadow);
+}
+.overall-label { font-size: 0.8rem; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.overall-bar-wrap {
+  flex: 1;
+  height: 8px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.overall-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold) 0%, #e8c96a 100%);
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+.overall-pct { font-family: 'DM Serif Display', serif; font-size: 1.4rem; color: var(--gold); }
+
+.export-btn {
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.export-btn:hover { background: var(--gold); color: var(--ink); }
+
+/* Observation textarea */
+.obs-area {
+  width: 100%;
+  min-height: 60px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.78rem;
+  resize: vertical;
+  margin-top: 0.4rem;
+  color: var(--ink);
+}
+.obs-area:focus { outline: none; border-color: var(--gold); }
+.obs-toggle {
+  font-size: 0.72rem;
+  color: var(--gold);
+  cursor: pointer;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  padding: 0;
+}
+.obs-area-wrap { display: none; margin-top: 0.4rem; }
+.obs-area-wrap.open { display: block; }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+/* print */
+@media print {
+  header { position: static; }
+  .sidebar { display: none; }
+  .app-body { grid-template-columns: 1fr; }
+  .section-card { display: block !important; }
+  .section-body { display: block !important; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo">⚖ Audit<span>Pro</span></div>
+    <div class="header-meta">
+      <span id="currentDate"></span>
+      <span>|</span>
+      <span>INTERNAL AUDIT PLATFORM</span>
+      <span class="progress-chip" id="headerProgress">0% Complete</span>
+      <button class="export-btn" onclick="exportReport()">⬇ Export Report</button>
+    </div>
+  </div>
+</header>
+
+<div class="app-body">
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-section-label">Industry</div>
+    <select class="industry-selector" id="industrySelect" onchange="changeIndustry(this.value)">
+      <option value="manufacturing">Manufacturing</option>
+      <option value="retail">Retail / FMCG</option>
+      <option value="banking">Banking & Financial Services</option>
+      <option value="healthcare">Healthcare</option>
+      <option value="it">IT / Technology</option>
+      <option value="realestate">Real Estate</option>
+    </select>
+
+    <div class="sidebar-section-label">Process Areas</div>
+    <div id="navItems"></div>
+
+    <div class="sidebar-section-label" style="margin-top:1rem;">Quick Links</div>
+    <a class="nav-item" onclick="scrollToExcel()">
+      <span class="nav-icon">📊</span>
+      <span class="nav-label">Excel Working Guide</span>
+    </a>
+    <a class="nav-item" onclick="window.print()">
+      <span class="nav-icon">🖨</span>
+      <span class="nav-label">Print Checklist</span>
+    </a>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main" id="mainContent">
+    <div id="processHeader"></div>
+
+    <div class="overall-progress">
+      <span class="overall-label">AUDIT COMPLETION</span>
+      <div class="overall-bar-wrap">
+        <div class="overall-bar-fill" id="overallBar" style="width:0%"></div>
+      </div>
+      <span class="overall-pct" id="overallPct">0%</span>
+    </div>
+
+    <div class="section-tabs" id="sectionTabs"></div>
+    <div id="checklistSections"></div>
+    <div id="excelSection"></div>
+  </main>
+</div>
+
+<script>
+// =====================================================================
+// DATA
+// =====================================================================
+const PROCESSES = {
+  p2p: {
+    id: 'p2p', icon: '🛒', label: 'Procure-to-Pay', shortLabel: 'P2P',
+    desc: 'End-to-end audit of the procurement and accounts payable cycle — from purchase requisition to vendor payment, ensuring authorization, segregation of duties, and fraud prevention controls.',
+    stats: { items: 42, riskAreas: 8, controls: 24, formulas: 12 },
+    sections: [
+      {
+        id: 'pr', name: 'Purchase Requisition & Approval', icon: '📋', risk: 'high',
+        items: [
+          { text: 'Verify all PRs are raised in ERP/system before PO creation', modus: 'Check system logs for POs without corresponding PR. Fraudsters often bypass PR stage to push unauthorized purchases.', tags: ['doc:PR Register', 'risk:Unauthorized Purchase'], hasObs: true },
+          { text: 'Confirm PRs are approved by authorized personnel per DoA matrix', modus: 'Cross-check approver designation against Delegation of Authority policy. Look for approvals by peers or subordinates.', tags: ['doc:DoA Matrix', 'control:Authorization'] },
+          { text: 'Check for split purchases to avoid approval thresholds', modus: 'Run VLOOKUP/Pivot on vendor+date to find multiple POs just below threshold limits (e.g., 3×₹49,900 when limit is ₹50,000).', tags: ['risk:Threshold Bypass', 'formula:Pivot+VLOOKUP'], hasObs: true },
+          { text: 'Verify PR-to-PO lead time is within policy (typically ≤7 days)', modus: 'Calculate date difference in Excel. Delays may indicate manual intervention or back-dating.', tags: ['formula:=DATEDIF()', 'control:Timeliness'] },
+        ]
+      },
+      {
+        id: 'po', name: 'Purchase Order Controls', icon: '📦', risk: 'high',
+        items: [
+          { text: 'Ensure POs are raised only against approved vendor master', modus: 'Compare PO vendor codes against approved vendor list. Ghost vendors are added to master without proper vetting to divert funds.', tags: ['doc:Vendor Master', 'risk:Ghost Vendor'], hasObs: true },
+          { text: 'Verify PO rates match contracted/RFQ rates within tolerance (±3%)', modus: 'Use VLOOKUP to match PO price vs rate contract. Inflated PO rates result in overpayments.', tags: ['formula:=VLOOKUP()', 'risk:Price Inflation'] },
+          { text: 'Check for open POs older than 180 days — confirm goods not yet received or PO should be closed', modus: 'Filter PO register for open status + PO date <TODAY-180. Stale open POs can be used for fraudulent GRNs later.', tags: ['formula:=TODAY()-PO_Date', 'control:PO Hygiene'] },
+          { text: 'Confirm PO amendment log exists for all revised POs with reason codes', modus: 'Frequent PO amendments (especially post-GRN) may indicate price manipulation or quantity inflation.', tags: ['doc:PO Amendment Log', 'risk:Amendment Fraud'] },
+        ]
+      },
+      {
+        id: 'grn', name: 'Goods Receipt & Inspection', icon: '🏭', risk: 'high',
+        items: [
+          { text: 'Verify GRN is created only upon physical receipt of goods — cross-check with security gate pass', modus: 'Match GRN dates vs gate entry register. Advance GRNs (before actual receipt) allow early payment fraud.', tags: ['doc:Gate Register', 'risk:Advance GRN'], hasObs: true },
+          { text: 'Confirm GRN quantities match PO quantities and invoice quantities (3-way match)', modus: 'In Excel, build 3-way match: PO Qty = GRN Qty = Invoice Qty. Variance >2% warrants investigation.', tags: ['formula:=IF(ABS(A-B)/A>2%,"Variance","OK")', 'control:3-Way Match'] },
+          { text: 'Check for quality inspection records signed by QC team before GRN', modus: 'GRNs without QC sign-off may include substandard goods at full price.', tags: ['doc:QC Inspection Report', 'control:Quality'] },
+          { text: 'Identify instances of GRN by same person who raised the PR (SOD violation)', modus: 'Compare PR creator vs GRN creator in ERP report. Same-person P2P cycle is a major SOD red flag.', tags: ['risk:SOD Violation', 'control:Segregation of Duties'], hasObs: true },
+        ]
+      },
+      {
+        id: 'inv', name: 'Invoice Processing & Matching', icon: '🧾', risk: 'high',
+        items: [
+          { text: 'Verify all vendor invoices are matched to PO and GRN before booking (3-way match)', modus: 'Extract invoice register from ERP; check Invoice Amount vs PO Amount vs GRN Amount. Unmatched invoices indicate potential duplicate or fictitious payments.', tags: ['control:3-Way Match', 'doc:Invoice Register'] },
+          { text: 'Check for duplicate invoice numbers from same vendor within 90 days', modus: 'Use COUNTIF on invoice number column. Duplicate invoices are the most common AP fraud — paying same invoice twice.', tags: ['formula:=COUNTIF(Invoice_Col, A2)>1', 'risk:Duplicate Payment'], hasObs: true },
+          { text: 'Verify GST/Tax amounts on invoice match TDS/GST reconciliation', modus: 'Cross-check GSTR-2A vs books purchase register. Mismatches indicate fake GST invoices or ITC fraud.', tags: ['doc:GSTR-2A', 'risk:Tax Fraud'] },
+          { text: 'Confirm invoices are approved for payment by authorized person (not same as invoice creator)', modus: 'Check approver vs creator fields in AP module. Same-person approval is SOD violation enabling fictitious payments.', tags: ['control:Authorization', 'risk:SOD Violation'] },
+        ]
+      },
+      {
+        id: 'pay', name: 'Vendor Payment Controls', icon: '💸', risk: 'high',
+        items: [
+          { text: 'Verify payment is made to vendor bank account registered in vendor master (not ad-hoc accounts)', modus: 'Compare payment bank details vs vendor master bank details. Account changes just before large payments are fraud red flags.', tags: ['doc:Vendor Bank Master', 'risk:BEC/Account Fraud'], hasObs: true },
+          { text: 'Check for payments made after invoice due date (late payment charges) or far before (early payment discounts claimed?)', modus: 'Calculate Payment Date − Due Date. Consistent early payments may indicate kickback arrangement with vendor.', tags: ['formula:=Payment_Date-Due_Date'] },
+          { text: 'Verify all round-figure payments >₹1 lakh have supporting documentation', modus: 'Round number payments (exactly ₹5,00,000) without invoice are suspicious — may be advance or kickback payments.', tags: ['risk:Round-Figure Payment', 'formula:=MOD(Amount,1000)=0'] },
+          { text: 'Confirm no payments to vendors with same bank account as employees', modus: 'Join vendor master and payroll data on bank account number. Matches indicate ghost vendor schemes.', tags: ['risk:Ghost Vendor', 'formula:=VLOOKUP(VendorBank,EmployeeBank)'], hasObs: true },
+        ]
+      },
+    ]
+  },
+
+  o2c: {
+    id: 'o2c', icon: '📈', label: 'Order-to-Cash', shortLabel: 'O2C',
+    desc: 'Comprehensive audit of the revenue cycle from customer order through cash collection — covering credit approval, billing accuracy, collections, and revenue recognition.',
+    stats: { items: 38, riskAreas: 7, controls: 22, formulas: 14 },
+    sections: [
+      {
+        id: 'order', name: 'Customer Order Management', icon: '🛍', risk: 'medium',
+        items: [
+          { text: 'Verify all customer orders are backed by signed PO / customer contract', modus: 'Spot check sales orders against customer PO copies. Revenue may be booked on verbal orders to inflate sales.', tags: ['doc:Customer PO', 'risk:Fictitious Revenue'], hasObs: true },
+          { text: 'Confirm order pricing matches approved price list or customer-specific agreement', modus: 'VLOOKUP order price vs price master. Unauthorized discounts reduce revenue and may indicate kickbacks to customer employees.', tags: ['formula:=VLOOKUP(SKU,PriceMaster)', 'risk:Unauthorized Discount'] },
+          { text: 'Check credit limit approval before order acceptance for credit customers', modus: 'Compare outstanding balance + new order vs approved credit limit. Exceeding limits without approval increases bad debt risk.', tags: ['control:Credit Approval', 'doc:Credit Limit Register'] },
+        ]
+      },
+      {
+        id: 'ship', name: 'Dispatch & Logistics', icon: '🚚', risk: 'medium',
+        items: [
+          { text: 'Verify dispatch is backed by customer-signed delivery challan / POD', modus: 'Goods dispatched without POD means revenue risk — customer can deny receipt. Also check for back-dated dispatch entries.', tags: ['doc:POD/E-way Bill', 'risk:Revenue Dispute'] },
+          { text: 'Confirm e-way bill generated for all dispatches above threshold value', modus: 'Missing e-way bills = GST compliance risk + potential fake dispatch entries.', tags: ['control:GST Compliance', 'doc:E-way Bill Register'], hasObs: true },
+          { text: 'Identify dispatches to non-existent / blocked customers in master', modus: 'Filter dispatch report against customer master status. Dispatches to inactive customers may indicate fictitious sales.', tags: ['formula:=VLOOKUP(Cust_Code,CustMaster)', 'risk:Fictitious Sales'] },
+        ]
+      },
+      {
+        id: 'invoice2', name: 'Billing & Invoicing', icon: '🧾', risk: 'high',
+        items: [
+          { text: 'Verify invoice amount = Order Qty × Agreed Rate + applicable taxes', modus: 'Recalculate invoice value in Excel. Overbilling inflates revenue short-term; underbilling causes revenue loss.', tags: ['formula:=Qty*Rate*(1+TaxRate)', 'risk:Billing Error'], hasObs: true },
+          { text: 'Confirm all credit notes are approved by authorized person and backed by valid reason', modus: 'Unapproved credit notes reduce revenue without justification — common route for misappropriation.', tags: ['doc:Credit Note Register', 'control:Authorization'] },
+          { text: 'Check for invoices raised without corresponding dispatch (Sales but no delivery)', modus: 'JOIN Invoice Register vs Dispatch Register on SO number. Invoices without dispatch = fictitious revenue booking.', tags: ['risk:Window Dressing', 'formula:=IFERROR(VLOOKUP(),"NO DISPATCH")'] },
+          { text: 'Verify revenue recognition timing — confirm goods have been delivered before revenue is booked', modus: 'Compare invoice date vs POD date. Pre-delivery revenue booking inflates period performance (channel stuffing).', tags: ['risk:Revenue Acceleration', 'control:Ind-AS 115'], hasObs: true },
+        ]
+      },
+      {
+        id: 'collect', name: 'Collections & Reconciliation', icon: '🏦', risk: 'high',
+        items: [
+          { text: 'Verify all collections are deposited in company bank account within 2 business days', modus: 'Compare receipt date vs bank credit date. Delays indicate teeming and lading (using one customer payment to cover another).', tags: ['risk:Teeming & Lading', 'doc:Bank Statement'], hasObs: true },
+          { text: 'Confirm no direct adjustments to AR ledger without supporting receipt/credit note', modus: 'Extract AR journal entries; flag direct debits/credits without document reference. Used to conceal embezzlement.', tags: ['formula:=IF(DocRef="","FLAG","OK")', 'risk:Embezzlement'] },
+          { text: 'Age debtors and identify balances >90 days without follow-up/provision', modus: 'Use DATEDIF to age AR balances into buckets (0-30, 31-60, 61-90, >90 days). Overdue debts may be fictitious sales or related-party transactions.', tags: ['formula:=DATEDIF(InvDate,TODAY(),"D")', 'doc:Aged AR Report'], hasObs: true },
+          { text: 'Check for customer refunds/deposits being diverted to employee accounts', modus: 'Analyze refund bank details vs employee master. Key fraud scenario in high-volume B2C businesses.', tags: ['risk:Misappropriation', 'formula:=MATCH(RefundBank,EmpBank,0)'] },
+        ]
+      },
+    ]
+  },
+
+  hr: {
+    id: 'hr', icon: '👥', label: 'Human Resources', shortLabel: 'HR',
+    desc: 'Payroll integrity, hiring compliance, ghost employee detection, leave management, and statutory compliance audit across the full employee lifecycle.',
+    stats: { items: 35, riskAreas: 6, controls: 19, formulas: 11 },
+    sections: [
+      {
+        id: 'hire', name: 'Hiring & Onboarding', icon: '🤝', risk: 'medium',
+        items: [
+          { text: 'Verify all new hires have approved manpower requisition from department head', modus: 'Ghost employees are often added without proper hiring request. Compare HR joining letter vs approved headcount.', tags: ['doc:Manpower Requisition', 'risk:Ghost Employee'] },
+          { text: 'Confirm background verification (BGV) completed before joining / within 30 days', modus: 'Failed BGVs employed without proper escalation pose integrity risk. Check BGV completion status for all hires in sample.', tags: ['doc:BGV Report', 'control:Pre-employment Check'], hasObs: true },
+          { text: 'Verify joining date in HRMS matches joining letter / appointment letter date', modus: 'Back-dated joining entries can result in excess salary payment. Compare HRMS date vs appointment letter date.', tags: ['formula:=A2-B2', 'risk:Back-Dating'] },
+        ]
+      },
+      {
+        id: 'payroll', name: 'Payroll Processing', icon: '💰', risk: 'high',
+        items: [
+          { text: 'Identify ghost employees — active in payroll but no login/swipe records for 30+ days', modus: 'Join payroll run with attendance/access card data. Employees with salary credit but zero attendance are ghost employees.', tags: ['risk:Ghost Employee', 'formula:=VLOOKUP(EmpID,AttendanceData)'], hasObs: true },
+          { text: 'Verify total payroll disbursed reconciles with bank transfer confirmation', modus: 'Compare payroll register total vs bank debit amount. Differences may indicate siphoning of salary amount.', tags: ['control:Reconciliation', 'doc:Bank Advice'] },
+          { text: 'Check for salary of resigned/terminated employees paid post-exit date', modus: 'Join payroll with exit register. Salaries paid after last working day = payroll fraud. Use MAX(PayrollDate) vs ExitDate.', tags: ['formula:=IF(PayDate>ExitDate,"OVERPAID","OK")', 'risk:Post-Exit Payment'], hasObs: true },
+          { text: 'Verify salary increments have approval email/letter from authorized approver', modus: 'Unauthorized increments may be raised for ghost employees or as kickback. Check increment register vs approval trail.', tags: ['doc:Increment Approval', 'control:Authorization'] },
+          { text: 'Confirm PF, ESI, PT deductions match statutory rates and are remitted on time', modus: 'Recalculate PF (12% of basic), ESI (0.75% employee / 3.25% employer) and compare vs books. Late remittance attracts penalties.', tags: ['formula:=Basic*12%', 'control:Statutory Compliance'] },
+        ]
+      },
+      {
+        id: 'leave', name: 'Leave & Attendance', icon: '📅', risk: 'low',
+        items: [
+          { text: 'Verify leave balance as per HRMS matches physical leave register / policy entitlement', modus: 'Incorrect leave credits allow excess encashment at time of exit. Recalculate entitlement: Joining month pro-ration etc.', tags: ['formula:=YEARFRAC()*Annual_Leave', 'control:Leave Accuracy'] },
+          { text: 'Check that LOP (Loss of Pay) deductions are applied for unauthorized absences', modus: 'Employees absent without approved leave should have LOP. Failure to deduct = excess payment.', tags: ['formula:=IF(Absent_Days>ApprovedLeave,LOP_Ded,0)', 'risk:Overpayment'] },
+        ]
+      },
+      {
+        id: 'exit', name: 'Exit & Full & Final Settlement', icon: '🚪', risk: 'high',
+        items: [
+          { text: 'Verify F&F statement calculation — gratuity, earned leave encashment, notice pay', modus: 'Recalculate gratuity: (15/26) × Last Basic × Years of Service. Errors often go in employee favor due to system misconfiguration.', tags: ['formula:=(15/26)*LastBasic*Years', 'risk:Overpayment'], hasObs: true },
+          { text: 'Confirm all company assets (laptop, access cards, SIM) returned before F&F clearance', modus: 'Missing asset recovery = write-off. Cross-check asset register vs exit clearance form.', tags: ['doc:Asset Return Form', 'control:Asset Recovery'] },
+          { text: 'Verify no duplicate PF withdrawal claims submitted for the same employee', modus: 'Check PF claim history for same PRAN/UAN. Duplicate claims result in excess disbursement from EPFO trust.', tags: ['formula:=COUNTIF(UAN_Col,A2)>1', 'risk:Duplicate PF Claim'] },
+        ]
+      },
+    ]
+  },
+
+  finance: {
+    id: 'finance', icon: '🏦', label: 'Finance & Accounts', shortLabel: 'F&A',
+    desc: 'Financial reporting integrity, journal entry review, bank reconciliation, closing process controls, and intercompany transaction audit.',
+    stats: { items: 40, riskAreas: 9, controls: 26, formulas: 16 },
+    sections: [
+      {
+        id: 'je', name: 'Journal Entry Review', icon: '📒', risk: 'high',
+        items: [
+          { text: 'Identify all manual journal entries posted by non-Finance personnel', modus: 'Extract journal entry log; filter by user role. Non-Finance JE postings may indicate system bypass to manipulate accounts.', tags: ['risk:Unauthorized JE', 'formula:=COUNTIFS(User,Role,"Non-Finance")'], hasObs: true },
+          { text: 'Flag round-number journal entries >₹1 lakh without proper narration', modus: 'Round-figure JEs with vague narrations ("Adjustment", "Provision") are red flags for account manipulation.', tags: ['formula:=MOD(Amount,10000)=0', 'risk:Account Manipulation'] },
+          { text: 'Verify period-end accrual JEs are reversed in the next period', modus: 'Compare accrual JE list vs reversal JE list. Unreversed accruals inflate/deflate expenses across periods.', tags: ['control:Accrual Reversal', 'doc:JE Register'] },
+          { text: 'Check for JEs posted after month-close with back-dates in previous periods', modus: 'Compare JE posting date vs JE effective date. Back-dated JEs post-close indicate manipulation of closed period results.', tags: ['formula:=IF(PostDate>CloseDate,"FLAG","OK")', 'risk:Period Manipulation'], hasObs: true },
+        ]
+      },
+      {
+        id: 'bank', name: 'Bank Reconciliation', icon: '🏧', risk: 'high',
+        items: [
+          { text: 'Verify bank reconciliation is prepared monthly by Finance and reviewed by Controller', modus: 'Unreconciled items >60 days are high risk — may represent unrecorded liabilities or diverted receipts.', tags: ['doc:Bank Recon Statement', 'control:Monthly Review'], hasObs: true },
+          { text: 'Identify cheques issued but not presented for more than 6 months (stale cheques)', modus: 'Filter bank recon outstanding payments by date. Stale cheques may be re-issued fraudulently.', tags: ['formula:=TODAY()-ChequeDate>180', 'risk:Stale Cheque Fraud'] },
+          { text: 'Confirm no direct credits in bank statement are unrecorded in books', modus: 'Unrecorded credits may indicate revenue being siphoned. Every bank credit must have a corresponding book entry.', tags: ['control:Completeness', 'risk:Revenue Diversion'] },
+        ]
+      },
+      {
+        id: 'recon', name: 'Ledger & Balance Confirmation', icon: '⚖', risk: 'medium',
+        items: [
+          { text: 'Obtain balance confirmation from top 20 debtors and reconcile with AR ledger', modus: 'Differences in confirmation vs ledger may indicate fictitious debtors or unrecorded credit notes.', tags: ['doc:Balance Confirmation', 'control:External Verification'], hasObs: true },
+          { text: 'Verify intercompany balances are reconciled between entities (no open interco items >30 days)', modus: 'Unreconciled interco balances can be used to hide losses or manipulate group financials.', tags: ['formula:=SUM(Interco_Payable)-SUM(Interco_Receivable)', 'control:Interco Recon'] },
+          { text: 'Confirm advances to vendors/employees are backed by agreement and recovery schedule', modus: 'Long-outstanding advances without recovery plan may represent disguised write-offs or misappropriation.', tags: ['doc:Advance Register', 'risk:Advance Write-off'], hasObs: true },
+        ]
+      },
+    ]
+  },
+
+  it: {
+    id: 'it', icon: '💻', label: 'IT General Controls', shortLabel: 'ITGC',
+    desc: 'IT access management, change management, data backup, cybersecurity controls, and system configuration audit across critical business applications.',
+    stats: { items: 30, riskAreas: 6, controls: 20, formulas: 8 },
+    sections: [
+      {
+        id: 'access', name: 'Access Management', icon: '🔐', risk: 'high',
+        items: [
+          { text: 'Verify no active user accounts for terminated employees in critical systems (ERP, Email, Banking)', modus: 'Compare active AD/ERP users vs HR exit list. Orphan accounts can be misused by former employees or colleagues.', tags: ['risk:Orphan Account', 'formula:=VLOOKUP(Username,ExitList)'], hasObs: true },
+          { text: 'Confirm privileged/admin access is restricted to minimum necessary users (least privilege)', modus: 'Extract admin user list; verify with IT manager and business owner. Excess admin rights enable unauthorized data modification.', tags: ['control:Least Privilege', 'doc:Access Matrix'] },
+          { text: 'Check password policy enforcement — minimum length 12 chars, complexity enabled, expiry 90 days', modus: 'Weak passwords are entry point for cyberattacks. Extract Group Policy settings and verify against policy.', tags: ['control:Password Policy', 'risk:Cyber Risk'] },
+          { text: 'Identify shared/generic user accounts used in production systems', modus: 'Generic accounts (admin, guest, sysadmin) cannot be attributed to individual — non-repudiation risk.', tags: ['risk:Non-repudiation', 'doc:User Account Report'], hasObs: true },
+        ]
+      },
+      {
+        id: 'change', name: 'Change Management', icon: '🔧', risk: 'high',
+        items: [
+          { text: 'Verify all system changes have approved change request (CR) before implementation', modus: 'Unauthorized changes may introduce errors or backdoors. Compare change log vs approved CR list.', tags: ['doc:Change Register', 'control:Change Authorization'] },
+          { text: 'Confirm no changes deployed directly to production without UAT/testing', modus: 'Direct production changes bypass quality controls and may introduce financial reporting errors.', tags: ['control:Testing Protocol', 'risk:Untested Change'], hasObs: true },
+          { text: 'Verify developer access to production environment is restricted', modus: 'Developers with prod access can manipulate data directly. Check access control list for developer accounts.', tags: ['control:SOD', 'risk:Data Manipulation'] },
+        ]
+      },
+      {
+        id: 'backup', name: 'Data Backup & Recovery', icon: '💾', risk: 'medium',
+        items: [
+          { text: 'Confirm daily backup is performed and backup success logs are reviewed', modus: 'Failed backups undetected = data loss risk. Check backup logs for failure alerts and resolution.', tags: ['doc:Backup Logs', 'control:Data Protection'] },
+          { text: 'Verify backup restoration has been tested in last 12 months (DR drill)', modus: 'Untested backups may fail when needed. Evidence: DR test report, RTO/RPO validation.', tags: ['doc:DR Test Report', 'control:Business Continuity'], hasObs: true },
+        ]
+      },
+    ]
+  },
+
+  inventory: {
+    id: 'inventory', icon: '📦', label: 'Inventory Management', shortLabel: 'INV',
+    desc: 'Physical verification, stock valuation, slow-moving/obsolete inventory identification, and inventory reconciliation controls.',
+    stats: { items: 28, riskAreas: 5, controls: 16, formulas: 10 },
+    sections: [
+      {
+        id: 'physical', name: 'Physical Verification', icon: '🔍', risk: 'high',
+        items: [
+          { text: 'Conduct surprise physical count and compare with system stock (ERP/WMS)', modus: 'Variance between physical and book stock indicates pilferage, recording errors, or fictitious inventory. Allow ±0.5% tolerance.', tags: ['formula:=((Book-Physical)/Book)*100', 'risk:Pilferage'], hasObs: true },
+          { text: 'Verify damaged/rejected stock is segregated and separately accounted', modus: 'Unsegregated damaged goods can be included in good stock value, overstating inventory.', tags: ['control:Stock Segregation', 'doc:Damage Report'] },
+          { text: 'Check for negative inventory in system (stock issued > stock received)', modus: 'Negative inventory indicates system entries without physical backing — GRNs may be back-dated.', tags: ['formula:=IF(StockQty<0,"FLAG","OK")', 'risk:Back-Dated GRN'] },
+        ]
+      },
+      {
+        id: 'valuation', name: 'Stock Valuation', icon: '💎', risk: 'high',
+        items: [
+          { text: 'Verify inventory valuation method (FIFO/AVCO) is consistently applied', modus: 'Method changes inflate/deflate inventory value and profit. Compare current vs prior year method.', tags: ['control:Consistency', 'risk:Manipulation'], hasObs: true },
+          { text: 'Identify slow-moving/non-moving inventory >6 months and verify provision adequacy', modus: 'Calculate days of cover: Stock Qty / (Monthly Avg Consumption). Items >180 days should have NRV provision.', tags: ['formula:=StockQty/(Avg_Monthly_Issues)', 'risk:Overvaluation'] },
+          { text: 'Confirm write-offs/write-downs are approved by senior management with full documentation', modus: 'Unauthorized inventory write-offs may conceal pilferage. Check approval trail for all write-offs.', tags: ['doc:Write-off Approval', 'control:Authorization'], hasObs: true },
+        ]
+      },
+    ]
+  }
+};
+
+const EXCEL_GUIDES = {
+  p2p: [
+    { step: 1, title: '3-Way Match Workbook', desc: 'Create columns: PO Number, PO Qty, PO Rate, GRN Number, GRN Qty, Invoice Number, Invoice Amount. Use VLOOKUP to pull data from each sub-register.', formula: '=VLOOKUP(A2, GRN_Data, 3, 0)  → GRN Qty\n=VLOOKUP(A2, Invoice_Data, 4, 0) → Invoice Amount\n=IF(ABS(C2-E2)>C2*2%, "VARIANCE", "MATCH")  → Match Check' },
+    { step: 2, title: 'Duplicate Invoice Detection', desc: 'In the Invoice Register, add a helper column to flag duplicate combinations of Vendor Code + Invoice Number + Amount.', formula: '=COUNTIFS($B$2:$B$1000, B2, $C$2:$C$1000, C2, $D$2:$D$1000, D2)\n→ Values > 1 indicate potential duplicates\n=IF(E2>1, "DUPLICATE - INVESTIGATE", "OK")' },
+    { step: 3, title: 'Split PO Detection (Threshold Bypass)', desc: 'Group by Vendor + Week. Sum PO values. Compare against approval threshold. Use PivotTable: Rows=Vendor, Columns=Week, Values=SUM(PO Amount).', formula: '=SUMPRODUCT((VendorCol=A2)*(WEEKNUM(DateCol)=WEEKNUM(B2))*(AmountCol))\n→ If result > Approval Threshold: Flag\n=IF(F2>50000, "REVIEW APPROVAL", "OK")' },
+    { step: 4, title: 'Vendor-Employee Bank Match', desc: 'Place Vendor Bank Account list and Employee Bank Account list side by side. Use MATCH to find common accounts — any match is a critical fraud indicator.', formula: '=IFERROR(MATCH(VendorBank_A2, EmployeeBank_Col, 0), "NO MATCH")\n→ If result is a number: CRITICAL FLAG\n=IF(ISNUMBER(G2), "⚠ GHOST VENDOR RISK", "Clear")' },
+    { step: 5, title: 'Payment Timing Analysis', desc: 'Calculate days from invoice date to payment date. Cluster around suspicious patterns — payments always made on specific dates or by specific users.', formula: '=NETWORKDAYS(InvoiceDate, PaymentDate) → Working days to pay\n=AVERAGE(Payment_Days_Col) → Average DPO\n=STDEV(Payment_Days_Col) → Flag outliers beyond ±2 SD' },
+    { step: 6, title: 'SOD Violation Matrix', desc: 'Extract: PR Creator, PO Approver, GRN Creator, Invoice Approver, Payment Releaser — all in one row per transaction. Use COUNTIF to spot same person in multiple roles.', formula: '=COUNTIF(A2:E2, A2) → Count how many times first person appears\n=IF(F2>1, "SOD VIOLATION", "OK")\nAlso check: =IF(C2=E2, "GRN=PAYMENT SAME", "OK")' },
+  ],
+  o2c: [
+    { step: 1, title: 'Debtors Aging Report', desc: 'Calculate invoice age in days from invoice date to today. Classify into aging buckets using nested IFs.', formula: '=TODAY()-InvoiceDate → Age in days\n=IFS(Age<=30,"0-30 Days", Age<=60,"31-60 Days", Age<=90,"61-90 Days", Age>90,">90 Days")' },
+    { step: 2, title: 'Teeming & Lading Detection', desc: 'Sort collections by Receipt Date and Deposit Date. Calculate lag. Flag receipts with deposit lag >2 business days.', formula: '=NETWORKDAYS(ReceiptDate, DepositDate) → Lag\n=IF(Lag>2, "DELAY - INVESTIGATE", "OK")\nGroup by Collector to spot patterns.' },
+    { step: 3, title: 'Revenue Completeness Check', desc: 'Reconcile Dispatch Register total vs Invoice Register total by period. Any dispatch without invoice = unrecorded revenue.', formula: '=SUMIF(InvReg_Month, "Jan-25", InvReg_Amount) → Invoiced\n=SUMIF(DispReg_Month, "Jan-25", DispReg_Value) → Dispatched\n=Dispatched - Invoiced → Gap (should be zero)' },
+    { step: 4, title: 'Credit Note Analysis', desc: 'Pivot credit notes by Approver and by Customer. Flag approvers with high credit note volume — may indicate collusion.', formula: '=AVERAGEIF(Approver_Col, A2, CrNote_Amount_Col) → Avg per approver\n=PERCENTRANK(CrNote_Totals_Col, ApproverTotal) → Flag top 10%' },
+  ],
+  hr: [
+    { step: 1, title: 'Ghost Employee Detection', desc: 'Join payroll data with attendance/access swipe data on Employee ID. Employees in payroll but absent from attendance for >30 days are suspects.', formula: '=VLOOKUP(EmpID, Attendance_Data, 2, 0) → Days Present\n=IF(ISERROR(VLOOKUP(...)), "NOT IN ATTENDANCE", Days_Present)\n=IF(Days_Present=0, "GHOST RISK", "OK")' },
+    { step: 2, title: 'Post-Exit Payroll Check', desc: 'Compare payroll month vs employee exit date. Any employee paid after exit date is overpaid.', formula: '=DATE(PayrollYear, PayrollMonth, 1) → Payroll Period Start\n=IF(ExitDate < PayrollPeriodStart, "OVERPAID", "OK")\n=SUMIF(Status_Col, "OVERPAID", PayAmount_Col) → Total Overpayment' },
+    { step: 3, title: 'Statutory Deduction Reconciliation', desc: 'Recalculate PF, ESI, PT for each employee and compare with actual deductions. Flag differences > ₹100.', formula: '=Basic*12%  → Employee PF\n=Basic*12%  → Employer PF (EPF)\n=GrossWage*0.75%  → Employee ESI (if wages ≤21,000)\n=IF(ABS(Calc_PF - Actual_PF)>100, "MISMATCH", "OK")' },
+    { step: 4, title: 'F&F Gratuity Calculation', desc: 'Verify gratuity computation for employees with service ≥5 years.', formula: '=IF(YearsOfService>=5, (15/26)*LastBasic*YearsOfService, 0)\n→ Compare with company calculated amount\n=IF(ABS(Calc_Gratuity - Paid_Gratuity)>500, "INVESTIGATE", "OK")' },
+  ],
+  finance: [
+    { step: 1, title: 'Journal Entry Outlier Analysis', desc: 'Extract all JEs. Calculate mean and standard deviation of amounts. Flag JEs more than 2 standard deviations from mean.', formula: '=AVERAGE(JE_Amount_Col) → Mean\n=STDEV(JE_Amount_Col) → Std Dev\n=IF(ABS(A2-Mean)>2*StdDev, "OUTLIER", "Normal")\nAlso: =IF(AND(MOD(A2,1000)=0, A2>100000), "ROUND AMT FLAG", "OK")' },
+    { step: 2, title: 'Bank Reconciliation Aging', desc: 'In the bank recon, calculate how long each item has been outstanding.', formula: '=TODAY()-TransactionDate → Outstanding Days\n=IF(Days>60, "OVERDUE", IF(Days>30, "REVIEW", "Current"))\n=SUMIF(Status_Col, "OVERDUE", Amount_Col) → Total overdue items' },
+    { step: 3, title: 'Intercompany Reconciliation', desc: 'List all intercompany balances by entity pair. Use SUMIF to total payable vs receivable for each pair. Net should be zero.', formula: '=SUMIFS(IC_Payable, Entity_Col, A2, Counter_Entity, B2)\n=SUMIFS(IC_Receivable, Entity_Col, B2, Counter_Entity, A2)\n=Payable - Receivable → Should = 0; flag non-zero' },
+  ],
+  it: [
+    { step: 1, title: 'Orphan Account Detection', desc: 'Extract active user list from AD/ERP. Extract terminated employee list from HR. Use VLOOKUP/MATCH to find accounts that exist in system but not in active employee list.', formula: '=IFERROR(VLOOKUP(Username, ActiveEmp_Col, 1, 0), "ORPHAN")\n=COUNTIF(Orphan_Col, "ORPHAN") → Total orphan accounts\nGroup by system (ERP, Email, Banking) for risk rating.' },
+    { step: 2, title: 'Privileged Access Monitoring', desc: 'Extract all users with admin/superuser roles. Calculate % of total users with admin access. >5% is a red flag.', formula: '=COUNTIF(Role_Col, "Admin") / COUNTA(User_Col) * 100 → % Admin\n=IF(Admin_Pct > 5%, "EXCESSIVE", "Acceptable")\nPivot by Department to find business areas with excess access.' },
+  ],
+  inventory: [
+    { step: 1, title: 'Physical vs Book Variance Analysis', desc: 'For each SKU, calculate variance between physical count and system quantity. Express as % and flag items beyond tolerance.', formula: '=(Book_Qty - Physical_Qty) / Book_Qty * 100 → Variance %\n=IF(ABS(Var_Pct) > 0.5%, "INVESTIGATE", "Within Tolerance")\n=SUMIF(Flag_Col, "INVESTIGATE", Value_Col) → Total value at risk' },
+    { step: 2, title: 'Slow-Moving Inventory Analysis', desc: 'Calculate days of cover (stock on hand / average monthly consumption). Items >180 days are slow-moving candidates for provision.', formula: '=Closing_Stock / (Annual_Issues / 12) → Months of Cover\n=IF(Months_Cover > 6, "SLOW MOVING", IF(Months_Cover > 12, "NON-MOVING", "OK"))\n=SUMIF(Category_Col, "NON-MOVING", Value_Col) → Provision required' },
+    { step: 3, title: 'Negative Inventory Report', desc: 'Simple filter in ERP extract: any item with closing quantity < 0. These represent system entries without physical backing.', formula: '=IF(Closing_Qty < 0, "NEGATIVE STOCK - CRITICAL", "OK")\n=COUNTIF(Stock_Col, "<0") → Count of negative items\n=SUMIF(Stock_Col, "<0", Value_Col) → Total value of negative stock' },
+  ],
+};
+
+const INDUSTRIES = {
+  manufacturing: 'Manufacturing',
+  retail: 'Retail / FMCG',
+  banking: 'Banking & Financial Services',
+  healthcare: 'Healthcare',
+  it: 'IT / Technology',
+  realestate: 'Real Estate',
+};
+
+const PROCESS_NAV = [
+  { id: 'p2p', icon: '🛒', label: 'Procure-to-Pay', count: 42 },
+  { id: 'o2c', icon: '📈', label: 'Order-to-Cash', count: 38 },
+  { id: 'hr', icon: '👥', label: 'Human Resources', count: 35 },
+  { id: 'finance', icon: '🏦', label: 'Finance & Accounts', count: 40 },
+  { id: 'it', icon: '💻', label: 'IT General Controls', count: 30 },
+  { id: 'inventory', icon: '📦', label: 'Inventory', count: 28 },
+];
+
+// =====================================================================
+// STATE
+// =====================================================================
+let currentProcess = 'p2p';
+let currentFilter = 'all';
+let checkState = {}; // { itemId: { checked, status, obs } }
+let openSections = {};
+
+// =====================================================================
+// INIT
+// =====================================================================
+function init() {
+  document.getElementById('currentDate').textContent = new Date().toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  renderNav();
+  loadProcess('p2p');
+}
+
+function renderNav() {
+  const nav = document.getElementById('navItems');
+  nav.innerHTML = PROCESS_NAV.map(p => `
+    <div class="nav-item ${p.id===currentProcess?'active':''}" onclick="loadProcess('${p.id}')" id="nav-${p.id}">
+      <span class="nav-icon">${p.icon}</span>
+      <span class="nav-label">${p.label}</span>
+      <span class="nav-count">${p.count}</span>
+    </div>
+  `).join('');
+}
+
+function changeIndustry(val) {
+  // Industry context affects display but not core checklist for this demo
+  renderNav();
+}
+
+function loadProcess(processId) {
+  currentProcess = processId;
+  currentFilter = 'all';
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  const navEl = document.getElementById('nav-'+processId);
+  if (navEl) navEl.classList.add('active');
+  renderProcess();
+  updateOverallProgress();
+}
+
+// =====================================================================
+// RENDER
+// =====================================================================
+function renderProcess() {
+  const proc = PROCESSES[currentProcess];
+  if (!proc) return;
+
+  // Header
+  document.getElementById('processHeader').innerHTML = `
+    <div class="process-header">
+      <div class="process-badge">● ${proc.icon} ${proc.shortLabel} AUDIT MODULE</div>
+      <h1 class="process-title">${proc.label}</h1>
+      <p class="process-desc">${proc.desc}</p>
+      <div class="process-stats">
+        <div class="stat"><div class="stat-val">${proc.stats.items}</div><div class="stat-lbl">Checklist Items</div></div>
+        <div class="stat"><div class="stat-val">${proc.stats.riskAreas}</div><div class="stat-lbl">Risk Areas</div></div>
+        <div class="stat"><div class="stat-val">${proc.stats.controls}</div><div class="stat-lbl">Controls Tested</div></div>
+        <div class="stat"><div class="stat-val">${proc.stats.formulas}</div><div class="stat-lbl">Excel Formulas</div></div>
+      </div>
+    </div>
+  `;
+
+  // Section tabs
+  const tabs = document.getElementById('sectionTabs');
+  tabs.innerHTML = `<button class="tab-btn active" onclick="filterSection('all', this)">All Sections</button>` +
+    proc.sections.map(s => `<button class="tab-btn" onclick="filterSection('${s.id}', this)">${s.icon} ${s.name.split('&')[0].trim()}</button>`).join('');
+
+  // Sections
+  const sectionsEl = document.getElementById('checklistSections');
+  sectionsEl.innerHTML = proc.sections.map(s => renderSection(s, proc.id)).join('');
+
+  // Excel
+  renderExcel(proc.id);
+}
+
+function renderSection(section, procId) {
+  const sectionKey = procId + '_' + section.id;
+  const isOpen = openSections[sectionKey] !== false; // default open
+  const items = section.items;
+  const checkedCount = items.filter((it, idx) => {
+    const key = procId + '_' + section.id + '_' + idx;
+    return checkState[key]?.checked;
+  }).length;
+  const pct = Math.round(checkedCount / items.length * 100);
+
+  return `
+    <div class="section-card ${isOpen?'open':''} visible" id="sec-${sectionKey}" data-section="${section.id}">
+      <div class="section-header" onclick="toggleSection('${sectionKey}')">
+        <span class="section-icon">${section.icon}</span>
+        <span class="section-name">${section.name}</span>
+        <div class="section-meta">
+          <span class="risk-badge risk-${section.risk}">${section.risk} risk</span>
+          <span class="section-progress-text">${checkedCount}/${items.length}</span>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" style="width:${pct}%"></div>
+          </div>
+          <span class="chevron">▶</span>
+        </div>
+      </div>
+      <div class="section-body">
+        ${items.map((item, idx) => renderItem(item, procId, section.id, idx)).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderItem(item, procId, secId, idx) {
+  const key = procId + '_' + secId + '_' + idx;
+  const state = checkState[key] || {};
+  const isChecked = state.checked || false;
+  const status = state.status || 'pending';
+  const isNA = status === 'na';
+
+  return `
+    <div class="checklist-item ${isChecked?'checked':''} ${isNA?'na':''}" id="item-${key}">
+      <div class="checkbox-wrap">
+        <input type="checkbox" ${isChecked?'checked':''} onchange="toggleItem('${key}', this.checked)">
+      </div>
+      <div class="item-content">
+        <div class="item-text">${item.text}</div>
+        <div class="item-modus">⚡ Modus Operandi: ${item.modus}</div>
+        <div class="item-tags">
+          ${item.tags.map(t => {
+            const [type, label] = t.split(':');
+            const cls = type==='doc'?'tag-doc':type==='formula'?'tag-formula':type==='risk'?'tag-risk':'tag-control';
+            return `<span class="tag ${cls}">${label || t}</span>`;
+          }).join('')}
+        </div>
+        ${item.hasObs ? `
+          <button class="obs-toggle" onclick="toggleObs('obs-${key}')">+ Add Observation</button>
+          <div class="obs-area-wrap" id="obs-${key}">
+            <textarea class="obs-area" placeholder="Document your finding, evidence reference, or observation here..." onchange="saveObs('${key}', this.value)">${state.obs||''}</textarea>
+          </div>
+        ` : ''}
+      </div>
+      <div class="item-status">
+        <select class="status-select" onchange="changeStatus('${key}', this.value)">
+          <option value="pending" ${status==='pending'?'selected':''}>Pending</option>
+          <option value="compliant" ${status==='compliant'?'selected':''}>✅ OK</option>
+          <option value="exception" ${status==='exception'?'selected':''}>⚠ Exception</option>
+          <option value="na" ${status==='na'?'selected':''}>N/A</option>
+        </select>
+      </div>
+    </div>
+  `;
+}
+
+function renderExcel(procId) {
+  const guides = EXCEL_GUIDES[procId] || [];
+  const el = document.getElementById('excelSection');
+  el.innerHTML = `
+    <div class="excel-panel open" id="excelPanel">
+      <div class="excel-panel-header" onclick="toggleExcel()">
+        <span>📊</span>
+        <h3>Excel Working Guide — ${PROCESSES[procId]?.label}</h3>
+        <span style="font-size:0.75rem;opacity:0.7;">Click to expand / collapse</span>
+        <span class="chevron" style="margin-left:auto;">▶</span>
+      </div>
+      <div class="excel-panel-body" id="excelBody">
+        <div class="obs-box" style="margin-bottom:1rem;">
+          <strong>📌 Methodology Note</strong>
+          All analyses should be performed on exported data from ERP/source systems. Maintain a master workbook with separate sheets for each analysis. Document exceptions on a separate "Findings" sheet with columns: Finding #, Description, Risk, Amount, Recommendation.
+        </div>
+        ${guides.map(g => `
+          <div class="excel-step">
+            <div class="step-num">${g.step}</div>
+            <div class="step-content">
+              <div class="step-title">${g.title}</div>
+              <div class="step-desc">${g.desc}</div>
+              <div class="formula-label">Excel Formula / Method</div>
+              <div class="formula-box">${g.formula}</div>
+            </div>
+          </div>
+        `).join('')}
+        <div class="obs-box" style="margin-top:1rem;">
+          <strong>📋 Standard Findings Template</strong>
+          Columns: Finding_ID | Process | Control_Area | Observation | Risk_Rating | Amount_At_Risk | Root_Cause | Recommendation | Management_Response | Target_Date
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// =====================================================================
+// INTERACTIONS
+// =====================================================================
+function toggleSection(key) {
+  const card = document.getElementById('sec-'+key);
+  card.classList.toggle('open');
+  openSections[key] = card.classList.contains('open');
+}
+
+function toggleExcel() {
+  const panel = document.getElementById('excelPanel');
+  const body = document.getElementById('excelBody');
+  panel.classList.toggle('open');
+  body.style.display = panel.classList.contains('open') ? 'block' : 'none';
+}
+
+function toggleObs(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+
+function toggleItem(key, checked) {
+  if (!checkState[key]) checkState[key] = {};
+  checkState[key].checked = checked;
+  if (checked && (!checkState[key].status || checkState[key].status === 'pending')) {
+    checkState[key].status = 'compliant';
+  }
+  const item = document.getElementById('item-'+key);
+  if (item) {
+    item.classList.toggle('checked', checked);
+    const sel = item.querySelector('.status-select');
+    if (sel && checked) sel.value = 'compliant';
+  }
+  updateProgress();
+}
+
+function changeStatus(key, status) {
+  if (!checkState[key]) checkState[key] = {};
+  checkState[key].status = status;
+  const item = document.getElementById('item-'+key);
+  if (item) {
+    item.classList.toggle('na', status === 'na');
+    item.classList.toggle('checked', status === 'compliant');
+    const cb = item.querySelector('input[type="checkbox"]');
+    if (cb) cb.checked = status === 'compliant';
+    checkState[key].checked = status === 'compliant';
+  }
+  updateProgress();
+}
+
+function saveObs(key, value) {
+  if (!checkState[key]) checkState[key] = {};
+  checkState[key].obs = value;
+}
+
+function filterSection(sectionId, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentFilter = sectionId;
+  document.querySelectorAll('.section-card').forEach(card => {
+    if (sectionId === 'all' || card.dataset.section === sectionId) {
+      card.classList.add('visible');
+    } else {
+      card.classList.remove('visible');
+    }
+  });
+}
+
+function scrollToExcel() {
+  document.getElementById('excelSection').scrollIntoView({ behavior: 'smooth' });
+}
+
+// =====================================================================
+// PROGRESS
+// =====================================================================
+function updateProgress() {
+  const proc = PROCESSES[currentProcess];
+  if (!proc) return;
+  let total = 0, done = 0;
+  proc.sections.forEach(s => {
+    s.items.forEach((it, idx) => {
+      const key = currentProcess + '_' + s.id + '_' + idx;
+      total++;
+      if (checkState[key]?.checked || checkState[key]?.status === 'na') done++;
+    });
+    // re-render section header progress
+    const sectionKey = currentProcess + '_' + s.id;
+    const headerEl = document.querySelector(`#sec-${sectionKey} .section-progress-text`);
+    const barEl = document.querySelector(`#sec-${sectionKey} .progress-bar-fill`);
+    if (headerEl && barEl) {
+      const secDone = s.items.filter((it, idx) => {
+        const k = currentProcess + '_' + s.id + '_' + idx;
+        return checkState[k]?.checked;
+      }).length;
+      const secPct = Math.round(secDone / s.items.length * 100);
+      headerEl.textContent = `${secDone}/${s.items.length}`;
+      barEl.style.width = secPct + '%';
+    }
+  });
+  const pct = total > 0 ? Math.round(done / total * 100) : 0;
+  document.getElementById('overallBar').style.width = pct + '%';
+  document.getElementById('overallPct').textContent = pct + '%';
+  document.getElementById('headerProgress').textContent = pct + '% Complete';
+  updateOverallProgress();
+}
+
+function updateOverallProgress() {
+  // Already handled in updateProgress
+}
+
+// =====================================================================
+// EXPORT
+// =====================================================================
+function exportReport() {
+  const proc = PROCESSES[currentProcess];
+  const industry = document.getElementById('industrySelect').value;
+  const date = new Date().toLocaleDateString('en-IN');
+  let exceptions = [];
+  let naCount = 0, compliantCount = 0;
+
+  proc.sections.forEach(s => {
+    s.items.forEach((it, idx) => {
+      const key = currentProcess + '_' + s.id + '_' + idx;
+      const state = checkState[key] || {};
+      if (state.status === 'exception') exceptions.push({ section: s.name, item: it.text, obs: state.obs || '' });
+      if (state.status === 'na') naCount++;
+      if (state.status === 'compliant' || state.checked) compliantCount++;
+    });
+  });
+
+  const lines = [
+    `AUDIT REPORT — ${proc.label.toUpperCase()}`,
+    `Industry: ${INDUSTRIES[industry]} | Date: ${date}`,
+    `=`.repeat(60),
+    ``,
+    `SUMMARY`,
+    `Compliant: ${compliantCount} | Exceptions: ${exceptions.length} | N/A: ${naCount}`,
+    ``,
+    `EXCEPTIONS FOUND`,
+    ...exceptions.map((e, i) => `${i+1}. [${e.section}] ${e.item}\n   Observation: ${e.obs || 'No observation recorded'}`),
+    ``,
+    `Generated by AuditPro Internal Audit Platform`,
+  ];
+
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `AuditReport_${proc.shortLabel}_${date.replace(/\//g,'-')}.txt`;
+  a.click();
+}
+
+// =====================================================================
+// START
+// =====================================================================
+init();
+</script>
+</body>
+</html>
